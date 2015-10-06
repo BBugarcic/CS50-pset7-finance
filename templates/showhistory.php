@@ -1,0 +1,58 @@
+<div id="middle">
+	<ul class="nav nav-pills">
+		<li><a href="quote.php">Quote</a></li>
+		<li><a href="buy.php">Buy</a></li>
+		<li><a href="sell.php">Sell</a></li>
+		<li><a href="history.php">History</a></li>
+		<li><a href="settings.php">Settings</a></li>
+		<li><a href="logout.php"><strong>Log Out</strong></a></li>
+	</ul>
+	
+
+	<table class="table table-striped">
+	
+		<thead>
+
+			<tr>
+				<th>Transaction</th>		        
+				<th>Date/Time</th>			
+				<th>Symbol</th>
+		        	<th>Shares</th>
+		        	<th>Price</th>
+		        	<th>Total Price</th>
+		        	<th>Profit</th>
+		    	</tr>
+		</thead>
+
+		<tbody>
+		    
+
+				
+			<?php // display history of transaction				
+					
+				foreach ($history as $transaction): ?>
+	
+				<tr>
+					<td><?= $transaction["transaction"] ?></td>
+					<td><?= $transaction["time"] ?></td>
+					<td><?= $transaction["symbol"] ?></td>
+					<td><?= $transaction["shares"] ?></td>
+					<td><?= number_format($transaction["price"], 2) ?></td>
+					<td><?= number_format($transaction["total"], 2) ?></td>
+					<td><?= number_format($transaction["profit"], 2) ?></td>
+				</tr>
+				
+			<?php endforeach ?>
+			
+			<tr>
+				<td>CURRENT BALANCE</td>
+				
+				<td colspan="6" style="text-align:right">$<?= number_format($balance, 2); ?></td>
+				
+			</tr>
+	
+		</tbody>
+	</table>
+	<div>
+		go <a href="index.php">back</a> to portfolio
+	</div>

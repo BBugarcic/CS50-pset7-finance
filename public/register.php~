@@ -1,0 +1,86 @@
+<?php
+
+    	// configuration
+    	require("../includes/config.php");
+	require("libphp-phpmailer/class.phpmailer.php");
+
+    	// if user reached page via GET (as by clicking a link or via redirect)
+    	if ($_SERVER["REQUEST_METHOD"] == "GET")
+	{
+		// else render form
+		render("register_form.php", ["title" => "Register"]);
+	}
+	
+	// else if user reached page via POST (as by submitting a form via POST)
+	else if ($_SERVER["REQUEST_METHOD"] == "POST")
+	{
+		// validate submission
+		if (empty($_POST["username"]))
+		{
+		    apologize("You must provide your username.");
+		}
+		else if (empty($_POST["email"]))
+		{
+		    apologize("You must provide your email address.");
+		}
+
+		else if (empty($_POST["password"]))
+		{
+		    apologize("You must provide your password.");
+		}
+
+		else if ($_POST["confirmation"] !== $_POST["password"])
+		{
+		    apologize("Password and confirmation are not the same.");
+		}
+
+		// query inserting new user in the tabel useres
+		$result = query("INSERT INTO users (username, email, hash, cash) VALUES(?, ?, ?, 10000.00)", $_POST["username"], $_POST["email"], crypt($_POST["password"]));
+
+		// check if username already exists
+		if ($result === false)
+		apologize("Username already exists!");
+		
+		// if insert succeeds, automaticaly logs in the user
+		// send conformation to user's email
+		else 
+		{
+				 		
+			$rows = query("SELECT LAST_INSERT_ID() AS id");
+			$id = $rows[0]["id"];
+			// remember that user's now logged in by storing user's ID in session
+			$_SESSION["id"] = $id;
+
+			$address = query("SELECT email FROM users WHERE id = ?", $_SESSION["id"]); 
+			$mail = new PHPMailer();
+			$mail->IsSMTP();
+			$mail->SMTPAuth = true;
+			$mail->SMTPSecure = "tls";
+			$mail->Host = "smtp.gmail.com"; // change to your email host
+			$mail->Port = 587; // change to your email port
+			$mail->Username = "Finance50team@gmail.com"; // change to your username
+			$mail->Password = "programiranje"; // change to your email password
+			$mail->setFrom("Finance50team@gmail.com"); // change to your email password
+
+			$mail->AddAddress($address[0]["email"]); // change to user's email address
+	
+			$mail->Subject = "Registration"; // change to email's subject
+
+			$mail->Body = "Wellcome! You are now a member of Finance50!"; // change to email's body, add the needed link here
+
+			if ($mail->Send() == false)
+			{
+				die($mail->ErrInfo);
+			}
+			else
+			{
+				echo "It worked!\n";
+			}
+
+	
+		    // redirect to portfolio
+		    redirect("/");
+
+		} 
+	}
+?>
